@@ -55,7 +55,7 @@ Logistic Regression dipilih sebagai model terbaik berdasarkan AUC-ROC. Model dis
 
 **Capstone III - Dashboard.** Aplikasi Streamlit memuat model tersimpan. Pengguna dapat mengisi sembilan fitur lewat slider (rentang dari `data.csv`) atau mengunggah file CSV, lalu menekan **Predict!** untuk melihat hasil Benign atau Malignant beserta probabilitas ganas.
 
-![Tampilan dashboard](laporan/dashboard.png)
+![Tampilan dashboard](dashboard.png)
 
 ## Cara Menjalankan
 
