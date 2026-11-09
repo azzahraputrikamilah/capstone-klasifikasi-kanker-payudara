@@ -1,0 +1,86 @@
+# Klasifikasi Diagnosis Kanker Payudara
+
+Capstone Project Sains Data (Capstone I, II, dan III) - Kelompok 3
+
+Proyek ini membangun proses klasifikasi untuk membedakan diagnosis tumor payudara **jinak (benign)** dan **ganas (malignant)** menggunakan dataset Breast Cancer Wisconsin (Diagnostic). Pengerjaan terdiri dari tiga tahap: persiapan data, pemodelan, dan dashboard prediksi berbasis Streamlit.
+
+## Anggota Kelompok
+
+| Nama | NIM |
+|---|---|
+| Azzahra Putri Kamilah | 123450013 |
+| Malika Azzahra | 123450090 |
+| Alliya Ammara Ananta | 123450075 |
+
+## Dataset
+
+- Sumber: [Breast Cancer Wisconsin (Diagnostic) - UCI Machine Learning Repository](https://archive.ics.uci.edu/dataset/17/breast+cancer+wisconsin+diagnostic)
+- Data awal: 569 baris dan 33 kolom (kolom `id`, `diagnosis`, 30 fitur numerik, dan satu kolom kosong `Unnamed: 32` yang dibuang)
+- Fitur: karakteristik sel (radius, texture, perimeter, area, smoothness, compactness, concavity, concave points, symmetry, fractal dimension) dalam tiga ukuran: mean, standard error (se), dan worst
+- Target: `diagnosis` dengan 0 = Benign (jinak) dan 1 = Malignant (ganas)
+- Setelah preprocessing dan penanganan outlier (IQR): 398 baris dan 31 kolom (sekitar 75,4% jinak dan 24,6% ganas)
+
+## Struktur Folder
+
+```
+.
+├── archive/
+│   └── data_mentah.csv              # data mentah
+├── laporan/
+│   └── Laporan_Capstone_Project_Sains_Data_Kelompok_3_AMA.pdf
+├── capstone1_data_preparation.ipynb # Capstone I: cleaning, EDA, feature selection, PCA
+├── capstone2_modeling.ipynb         # Capstone II: pemodelan, tuning, ROC-AUC, simpan model
+├── capstone3_dashboard.ipynb        # Capstone III: penjelasan kode dashboard
+├── app.py                           # aplikasi Streamlit
+├── data.csv                         # data bersih hasil Capstone I
+├── generate_breast_cancer.pkl       # model terbaik (pipeline scaler + model)
+├── requirements.txt
+└── README.md
+```
+
+## Ringkasan Tahapan dan Hasil
+
+**Capstone I - Data Preparation.** Pemeriksaan data awal, pengecekan missing value dan duplikat (tidak ada), penghapusan outlier dengan metode IQR, EDA, serta feature selection berdasarkan korelasi absolut terhadap target. Sembilan fitur terpilih: `area_worst`, `perimeter_worst`, `radius_worst`, `concave points_mean`, `concave points_worst`, `concavity_mean`, `area_se`, `area_mean`, `perimeter_mean`. Scaling dengan StandardScaler dan PCA dipakai untuk melihat struktur varians dan multikolinearitas antarfitur.
+
+**Capstone II - Modeling.** Data dibagi 80:20 (`random_state=42`), menghasilkan 318 data latih dan 80 data uji. Empat model dibandingkan, lalu dituning dengan GridSearchCV (5-fold, scoring ROC-AUC).
+
+| Model | Akurasi awal | Parameter terbaik | Best CV ROC-AUC | AUC-ROC (data uji) |
+|---|---|---|---|---|
+| Logistic Regression | 0,9000 | C=10, max_iter=100, solver=liblinear | 0,9912 | 0,9644 |
+| Random Forest | 0,8875 | criterion=entropy, max_depth=5, n_estimators=100 | 0,9879 | 0,9331 |
+| Decision Tree | 0,9000 | criterion=gini, max_depth=3, min_samples_leaf=5 | 0,9684 | 0,9265 |
+| MLP | 0,9250 | activation=tanh, hidden_layer_sizes=(50,50), solver=adam | 0,9902 | 0,9636 |
+
+Logistic Regression dipilih sebagai model terbaik berdasarkan AUC-ROC. Model disimpan sebagai pipeline (StandardScaler + Logistic Regression) dengan akurasi pada data uji 93,75%, lalu disimpan ke `generate_breast_cancer.pkl`.
+
+**Capstone III - Dashboard.** Aplikasi Streamlit memuat model tersimpan. Pengguna dapat mengisi sembilan fitur lewat slider (rentang dari `data.csv`) atau mengunggah file CSV, lalu menekan **Predict!** untuk melihat hasil Benign atau Malignant beserta probabilitas ganas.
+
+![Tampilan dashboard](laporan/dashboard.png)
+
+## Cara Menjalankan
+
+1. Clone repositori dan masuk ke foldernya.
+   ```
+   git clone <url-repositori>
+   cd <nama-folder>
+   ```
+2. Buat dan aktifkan virtual environment (Windows).
+   ```
+   python -m venv .venv
+   .venv\Scripts\activate
+   ```
+3. Pasang library.
+   ```
+   pip install -r requirements.txt
+   ```
+4. Jalankan notebook (Capstone I, lalu II) dengan VS Code atau Jupyter, atau langsung jalankan dashboard:
+   ```
+   python -m streamlit run app.py
+   ```
+   Dashboard terbuka di `http://localhost:8501`.
+
+Catatan: file `generate_breast_cancer.pkl` dibuat dengan versi scikit-learn tertentu. Jika muncul peringatan versi saat memuat model, jalankan ulang Capstone II untuk membuat ulang file tersebut.
+
+## Catatan
+
+Proyek ini dibuat untuk keperluan pembelajaran. Hasil prediksi dashboard bukan diagnosis medis.
